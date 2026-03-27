@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASIN Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0efe9;
+  --border: #e0ddd4;
+  --border2: #ccc9be;
+  --text: #1a1916;
+  --text2: #6b6860;
+  --text3: #a09e99;
+  --blue: #1a4fd6;
+  --blue-bg: #eef2fd;
+  --green: #1a7a3c;
+  --green-bg: #eaf5ee;
+  --red: #c0392b;
+  --red-bg: #fdecea;
+  --amber: #a05c00;
+  --amber-bg: #fdf3e3;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--text); color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+.header-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .04em; color: #fff; display: flex; align-items: center; gap: 10px; }
+.header-logo span { background: var(--blue); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 3px; letter-spacing: .06em; }
+.sync-status { font-family: var(--mono); font-size: 11px; color: #888; display: flex; align-items: center; gap: 6px; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #555; transition: background .3s; }
+.sync-dot.ok { background: #2ecc71; }
+.sync-dot.err { background: #e74c3c; }
+.sync-dot.loading { background: #f39c12; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* LAYOUT */
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; border-bottom: 1.5px solid var(--border); margin-bottom: 24px; }
+.tab { padding: 9px 20px; font-size: 13px; font-weight: 400; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: all .15s; font-family: var(--mono); letter-spacing: .02em; }
+.tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+.tab:hover:not(.active) { color: var(--text); }
+.panel { display: none; } .panel.active { display: block; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+.metric-label { font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
+.metric-value { font-size: 26px; font-weight: 300; color: var(--text); font-family: var(--mono); }
+.metric-value.red { color: var(--red); }
+.metric-value.grn { color: var(--green); }
+.metric-value.amb { color: var(--amber); }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 200px; padding: 8px 12px; font-size: 13px; font-family: var(--mono); border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; }
+.search-input:focus { border-color: var(--blue); }
+.filter-group { display: flex; gap: 4px; flex-wrap: wrap; }
+.fbtn { font-size: 11px; font-family: var(--mono); padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all .12s; letter-spacing: .02em; }
+.fbtn:hover { border-color: var(--text2); color: var(--text); }
+.fbtn.active { background: var(--text); color: #fff; border-color: var(--text); }
+.export-btn { font-size: 12px; font-family: var(--mono); padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; }
+.export-btn:hover { background: var(--surface2); }
+
+/* TABLE */
+.tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--surface2); font-size: 10px; font-family: var(--mono); font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fafaf7; }
+td { padding: 10px 14px; vertical-align: middle; }
+.asin-code { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); }
+.mp-tag { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+.prod-name { font-size: 12px; color: var(--text2); line-height: 1.45; word-break: break-word; max-width: 240px; }
+.missing-hint { font-size: 11px; color: var(--red); margin-top: 3px; font-family: var(--mono); }
+
+/* DOTS */
+.dots-row { display: flex; gap: 3px; }
+.dot { width: 24px; height: 24px; border-radius: 4px; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; font-family: var(--mono); }
+.d-ok { background: var(--green-bg); color: var(--green); }
+.d-no { background: var(--red-bg); color: var(--red); }
+.d-wip { background: var(--amber-bg); color: var(--amber); }
+.dots-labels { font-size: 9px; color: var(--text3); margin-top: 3px; font-family: var(--mono); letter-spacing: .02em; }
+
+/* SCORE */
+.score-num { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.score-bar { height: 4px; border-radius: 2px; background: var(--surface2); overflow: hidden; margin-top: 4px; width: 48px; }
+.score-fill { height: 100%; border-radius: 2px; }
+
+/* ACTION BUTTONS */
+.act-btn { font-size: 11px; font-family: var(--mono); padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; margin-right: 4px; }
+.act-btn:hover { background: var(--surface2); color: var(--text); }
+.act-btn.del { color: var(--red); border-color: #f0b8b3; }
+.act-btn.del:hover { background: var(--red-bg); }
+
+/* FOOTER ROW */
+.footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; font-family: var(--mono); color: var(--text3); }
+
+/* FORM */
+.form-wrap { max-width: 640px; }
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.form-section-title { font-size: 11px; font-family: var(--mono); font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+.form-group label { font-size: 11px; font-family: var(--mono); color: var(--text2); font-weight: 500; letter-spacing: .03em; }
+.form-group input, .form-group select, .form-group textarea { padding: 9px 11px; font-size: 13px; font-family: var(--mono); border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; width: 100%; transition: border-color .15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue); }
+.form-group textarea { resize: vertical; min-height: 72px; font-family: var(--sans); font-size: 13px; }
+.form-group input[readonly] { opacity: .5; cursor: not-allowed; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-primary { padding: 10px 22px; font-size: 13px; font-family: var(--mono); border: none; background: var(--text); color: #fff; border-radius: var(--radius); cursor: pointer; font-weight: 500; letter-spacing: .02em; transition: opacity .15s; }
+.btn-primary:hover { opacity: .85; }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+.btn-secondary { padding: 10px 18px; font-size: 13px; font-family: var(--mono); border: 1px solid var(--border2); background: transparent; color: var(--text); border-radius: var(--radius); cursor: pointer; }
+.btn-secondary:hover { background: var(--surface2); }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: flex-start; justify-content: center; padding-top: 60px; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 14px; font-family: var(--mono); font-weight: 500; }
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text2); line-height: 1; padding: 2px 6px; }
+.modal-close:hover { color: var(--text); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 11px 18px; border-radius: var(--radius); font-size: 13px; font-family: var(--mono); opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 200; }
+.toast.show { opacity: 1; }
+
+/* EMPTY */
+.empty-state { padding: 40px; text-align: center; color: var(--text3); font-family: var(--mono); font-size: 13px; }
+
+@media (max-width: 700px) {
+  .metrics { grid-template-columns: repeat(3, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+  .container { padding: 16px 14px; }
+  .header { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    ASIN MANAGER <span>ES · IT · FR · GER · BEL · UK</span>
+  </div>
+  <div class="sync-status">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-label">conectando...</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard')">dashboard</div>
+    <div class="tab" onclick="showTab('add')">+ agregar producto</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="tab-dashboard">
+    <div class="metrics" id="metrics"></div>
+    <div class="toolbar">
+      <input type="text" class="search-input" id="search" placeholder="buscar por ASIN o nombre..." oninput="renderTable()">
+      <div class="filter-group" id="filters"></div>
+      <button class="export-btn" onclick="exportTSV()">exportar pendientes ↓</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:120px">ASIN</th>
+            <th>Producto</th>
+            <th style="width:190px">Img · A+ · Tít · Desc · Blts</th>
+            <th style="width:80px">Score</th>
+            <th style="width:120px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="footer-row">
+      <span id="footer-count"></span>
+      <span id="last-sync-time"></span>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="panel" id="tab-add">
+    <div class="form-wrap">
+      <div class="form-card">
+        <div class="form-section-title" id="form-section-title">nuevo producto</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ASIN *</label>
+            <input type="text" id="f-asin" placeholder="ej. B0F9FY7PYN" maxlength="12" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="form-group">
+            <label>Marketplace</label>
+            <select id="f-mp"><option>ES</option><option>IT</option><option>FR</option><option>GER</option><option>BEL</option><option>UK</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Nombre del producto *</label>
+            <textarea id="f-prod" placeholder="Nombre completo tal como aparece en Amazon"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Imágenes</label>
+            <select id="f-img"><option>OK</option><option>NO</option><option>En proceso</option></select>
+          </div>
+          <div class="form-group">
+            <label>Contenido A+</label>
+            <select id="f-aplus"><option>NO</option><option>OK</option><option>En proceso</option></select>
+          </div>
+          <div class="form-group">
+            <label>Título</label>
+            <select id="f-titulo"><option>OK</option><option>NO</option><option>En proceso</option></select>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <select id="f-desc"><option>OK</option><option>NO</option><option>En proceso</option></select>
+          </div>
+          <div class="form-group">
+            <label>Bullet Points</label>
+            <select id="f-bullets"><option>OK</option><option>NO</option><option>En proceso</option></select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" id="save-btn" onclick="saveProduct()">guardar producto</button>
+          <button class="btn-secondary" onclick="clearForm()">limpiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">editar producto</div>
+      <button class="modal-close" onclick="closeEdit()">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>ASIN</label>
+        <input type="text" id="e-asin" readonly>
+      </div>
+      <div class="form-group">
+        <label>Marketplace</label>
+        <select id="e-mp"><option>ES</option><option>IT</option><option>FR</option><option>GER</option><option>BEL</option><option>UK</option></select>
+      </div>
+      <div class="form-group full">
+        <label>Nombre del producto</label>
+        <textarea id="e-prod"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Imágenes</label>
+        <select id="e-img"><option>OK</option><option>NO</option><option>En proceso</option></select>
+      </div>
+      <div class="form-group">
+        <label>Contenido A+</label>
+        <select id="e-aplus"><option>NO</option><option>OK</option><option>En proceso</option></select>
+      </div>
+      <div class="form-group">
+        <label>Título</label>
+        <select id="e-titulo"><option>OK</option><option>NO</option><option>En proceso</option></select>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <select id="e-desc"><option>OK</option><option>NO</option><option>En proceso</option></select>
+      </div>
+      <div class="form-group">
+        <label>Bullet Points</label>
+        <select id="e-bullets"><option>OK</option><option>NO</option><option>En proceso</option></select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" onclick="applyEdit()">guardar cambios</button>
+      <button class="btn-secondary" onclick="closeEdit()">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BIN_ID = "69c69566b7ec241ddcace686";
+const API_KEY = "$2a$10$vnTYIn6YdCW7ZGQgKv8SXOTVvMB1/goorcNSLc48kMHDClCqgE55q";
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+const FIELDS = ["img","aplus","titulo","desc","bullets"];
+const FLABELS = ["Img","A+","Tít","Desc","Blts"];
+const FNAME = {img:"Imágenes",aplus:"Contenido A+",titulo:"Título",desc:"Descripción",bullets:"Bullet Points"};
+
+const INITIAL_DATA = [
+  {id:1,asin:"B0F9FY7PYN",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul"},
+  {id:2,asin:"B088KL1HQ7",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 1000 - Blanco"},
+  {id:3,asin:"B088C1VQHS",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 200 - Blanco"},
+  {id:4,asin:"B088C216C6",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 300 - Blanco"},
+  {id:5,asin:"B088C1DFCJ",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Blanco"},
+  {id:6,asin:"B0GSH296R5",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"NO",bullets:"NO",producto:"XARA Organizador bajo Fregadero - Pack 2"},
+  {id:7,asin:"B0GSG14YLT",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"OK",bullets:"OK",producto:"Organizador Bajo Fregadero para Cocina o Baño"},
+  {id:8,asin:"B0G4S8XQRH",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 160x90 (Pack 2) Sin Alas"},
+  {id:9,asin:"B0G4SDM2RL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 160x90 (Pack 4) Sin Alas"},
+  {id:10,asin:"B0G4SCRG89",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 75x90 Sin Alas"},
+  {id:11,asin:"B0GN9YDP7Z",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul v2"},
+  {id:12,asin:"B0GKHPHWKL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 Sin Alas"},
+  {id:13,asin:"B0G4SF4NR5",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 (Pack 2) Sin Alas"},
+  {id:14,asin:"B0G4SDKNNW",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 135x90 Sin Alas"},
+  {id:15,asin:"B0G4SBMLKK",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 135x90 (Pack 4) Sin Alas"},
+  {id:16,asin:"B083V6PH9W",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 90x85 (Pack 2) con Alas"},
+  {id:17,asin:"B092W79MFN",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 160x85 (Pack 2) con Alas"},
+  {id:18,asin:"B08NF83KGW",mp:"ES",img:"OK",aplus:"OK",titulo:"En proceso",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 135x85 (Pack 2) con Alas"},
+  {id:19,asin:"B085TQ7FWB",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 90x85 con Alas"},
+  {id:20,asin:"B08NF98SWP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 135x85 con Alas"},
+  {id:21,asin:"B092W67H6S",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 160x85 con Alas"},
+  {id:22,asin:"B09FTJYVZG",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 200x85 con Alas"},
+  {id:23,asin:"B09FTGPT59",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 Sin Alas B"},
+  {id:24,asin:"B0FX3B8TB4",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Guantes Polietileno Pack 1.000"},
+  {id:25,asin:"B0C5JX299Q",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Guantes Polietileno Pack 10.000"},
+  {id:26,asin:"B0FKZ6J4SW",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr"},
+  {id:27,asin:"B0F8P75H96",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Pack 400 Gorros + Cubrezapatos + Batas + Guantes"},
+  {id:28,asin:"B0C29CBVCQ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr (B)"},
+  {id:29,asin:"B0C28Y1SYF",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 50 - 25gr"},
+  {id:30,asin:"B0FKZ7555V",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 10 - 35gr"},
+  {id:31,asin:"B0FQ5M67T4",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"XARA Bata Quirurgica XXXL Pack 10 - 35gr"},
+  {id:32,asin:"B0C28YX2CD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 50 - 35gr"},
+  {id:33,asin:"B0C28WLD9P",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 10 - 35gr (B)"},
+  {id:34,asin:"B0C28YGVSJ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XXXL Pack 50 - 35gr"},
+  {id:35,asin:"B0C28XQDGP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 35gr"},
+  {id:36,asin:"B0C28XH3BD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 50 - 35gr"},
+];
+
+let DATA = [];
+let nextId = 100;
+let activeFilter = "all";
+let editIndex = -1;
+let saving = false;
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById("sync-dot");
+  const lbl = document.getElementById("sync-label");
+  dot.className = "sync-dot " + state;
+  lbl.textContent = label;
+}
+
+async function loadFromCloud() {
+  setSyncStatus("loading", "cargando...");
+  try {
+    const r = await fetch(API_URL + "/latest", {
+      headers: { "X-Master-Key": API_KEY }
+    });
+    if (!r.ok) throw new Error("error");
+    const json = await r.json();
+    const record = json.record;
+    if (record && record.data && record.data.length > 0) {
+      DATA = record.data;
+      nextId = record.nextId || 100;
+    } else {
+      DATA = [...INITIAL_DATA];
+      await saveToCloud();
+    }
+    setSyncStatus("ok", "sincronizado");
+    updateLastSync();
+  } catch(e) {
+    setSyncStatus("err", "sin conexión");
+    DATA = [...INITIAL_DATA];
+    toast("Sin conexión. Usando datos locales.");
+  }
+  refresh();
+}
+
+async function saveToCloud() {
+  if (saving) return;
+  saving = true;
+  setSyncStatus("loading", "guardando...");
+  try {
+    const r = await fetch(API_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+      body: JSON.stringify({ data: DATA, nextId })
+    });
+    if (!r.ok) throw new Error("error");
+    setSyncStatus("ok", "guardado");
+    updateLastSync();
+  } catch(e) {
+    setSyncStatus("err", "error al guardar");
+    toast("Error al guardar en la nube.");
+  }
+  saving = false;
+}
+
+function updateLastSync() {
+  const el = document.getElementById("last-sync-time");
+  if (el) el.textContent = "última sync: " + new Date().toLocaleTimeString("es-ES", {hour:"2-digit",minute:"2-digit"});
+}
+
+function score(d) { return FIELDS.reduce((s,f) => s + (d[f]==="OK" ? 1 : 0), 0); }
+function scoreColor(s) { return s===5 ? "#1a7a3c" : s>=3 ? "#a05c00" : "#c0392b"; }
+function dotClass(v) { return v==="OK" ? "d-ok" : v==="NO" ? "d-no" : "d-wip"; }
+function dotLabel(v) { return v==="OK" ? "✓" : v==="NO" ? "✗" : "…"; }
+
+function showTab(t) {
+  document.querySelectorAll(".tab").forEach((el,i) => el.classList.toggle("active", ["dashboard","add"][i]===t));
+  document.querySelectorAll(".panel").forEach((el,i) => el.classList.toggle("active", ["tab-dashboard","tab-add"][i]==="tab-"+t));
+  if (t==="add") { clearForm(); }
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll(".fbtn").forEach(b => b.classList.toggle("active", b.dataset.f===f));
+  renderTable();
+}
+
+function getFiltered() {
+  const q = (document.getElementById("search")||{value:""}).value.toLowerCase().trim();
+  return DATA.filter(d => {
+    const mq = !q || d.asin.toLowerCase().includes(q) || d.producto.toLowerCase().includes(q) || (d.mp||"").toLowerCase().includes(q);
+    if (!mq) return false;
+    if (activeFilter==="all") return true;
+    if (activeFilter==="pending") return FIELDS.some(f => d[f]!=="OK");
+    if (activeFilter==="complete") return score(d)===5;
+    return d[activeFilter]!=="OK";
+  });
+}
+
+function renderMetrics() {
+  const t=DATA.length, comp=DATA.filter(d=>score(d)===5).length;
+  const pend=DATA.filter(d=>score(d)<5).length;
+  const naplus=DATA.filter(d=>d.aplus!=="OK").length;
+  const ndesc=DATA.filter(d=>d.desc!=="OK").length;
+  document.getElementById("metrics").innerHTML=`
+    <div class="metric"><div class="metric-label">Total</div><div class="metric-value">${t}</div></div>
+    <div class="metric"><div class="metric-label">Completos</div><div class="metric-value grn">${comp}</div></div>
+    <div class="metric"><div class="metric-label">Pendientes</div><div class="metric-value red">${pend}</div></div>
+    <div class="metric"><div class="metric-label">Sin A+</div><div class="metric-value amb">${naplus}</div></div>
+    <div class="metric"><div class="metric-label">Sin Descripción</div><div class="metric-value amb">${ndesc}</div></div>`;
+}
+
+function renderFilters() {
+  const counts = {
+    all: DATA.length,
+    pending: DATA.filter(d=>FIELDS.some(f=>d[f]!=="OK")).length,
+    complete: DATA.filter(d=>score(d)===5).length,
+    aplus: DATA.filter(d=>d.aplus!=="OK").length,
+    desc: DATA.filter(d=>d.desc!=="OK").length
+  };
+  const labels = {all:"todos",pending:"pendientes",complete:"completos",aplus:"sin A+",desc:"sin descripción"};
+  document.getElementById("filters").innerHTML = Object.entries(labels).map(([f,l]) =>
+    `<button class="fbtn ${f===activeFilter?"active":""}" data-f="${f}" onclick="setFilter('${f}')">${l} <span style="opacity:.55">${counts[f]}</span></button>`
+  ).join("");
+}
+
+function renderTable() {
+  const rows = getFiltered();
+  const tbody = document.getElementById("tbody");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">sin resultados</td></tr>`;
+    document.getElementById("footer-count").textContent = "";
+    return;
+  }
+  tbody.innerHTML = rows.map(d => {
+    const s = score(d), pct = Math.round(s/5*100);
+    const missing = FIELDS.filter(f=>d[f]!=="OK").map(f=>FNAME[f]);
+    const idx = DATA.indexOf(d);
+    return `<tr>
+      <td><div class="asin-code">${d.asin}</div><div class="mp-tag">${d.mp||"ES"}</div></td>
+      <td><div class="prod-name">${d.producto}${missing.length ? `<div class="missing-hint">${missing.join(", ")}</div>` : ""}</div></td>
+      <td>
+        <div class="dots-row">${FIELDS.map((f,i)=>`<div class="dot ${dotClass(d[f])}" title="${FLABELS[i]}: ${d[f]}">${dotLabel(d[f])}</div>`).join("")}</div>
+        <div class="dots-labels">${FLABELS.join(" · ")}</div>
+      </td>
+      <td>
+        <div class="score-num" style="color:${scoreColor(s)}">${s}/5</div>
+        <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${scoreColor(s)}"></div></div>
+      </td>
+      <td>
+        <button class="act-btn" onclick="openEdit(${idx})">editar</button>
+        <button class="act-btn del" onclick="deleteProduct(${idx})">✕</button>
+      </td>
+    </tr>`;
+  }).join("");
+  document.getElementById("footer-count").textContent = `${rows.length} de ${DATA.length} productos`;
+}
+
+function refresh() { renderMetrics(); renderFilters(); renderTable(); }
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+function clearForm() {
+  document.getElementById("f-asin").value = "";
+  document.getElementById("f-prod").value = "";
+  document.getElementById("f-mp").value = "ES";
+  document.getElementById("f-img").value = "OK";
+  document.getElementById("f-aplus").value = "NO";
+  document.getElementById("f-titulo").value = "OK";
+  document.getElementById("f-desc").value = "OK";
+  document.getElementById("f-bullets").value = "OK";
+}
+
+async function saveProduct() {
+  const asin = document.getElementById("f-asin").value.trim().toUpperCase();
+  const prod = document.getElementById("f-prod").value.trim();
+  if (!asin || !prod) { toast("ASIN y nombre son obligatorios"); return; }
+  if (!/^[A-Z0-9]{10}$/.test(asin)) { toast("El ASIN debe tener exactamente 10 caracteres alfanuméricos"); return; }
+  const btn = document.getElementById("save-btn");
+  btn.disabled = true; btn.textContent = "guardando...";
+  const entry = {
+    id: nextId++, asin, mp: document.getElementById("f-mp").value,
+    img: document.getElementById("f-img").value, aplus: document.getElementById("f-aplus").value,
+    titulo: document.getElementById("f-titulo").value, desc: document.getElementById("f-desc").value,
+    bullets: document.getElementById("f-bullets").value, producto: prod
+  };
+  DATA.push(entry);
+  await saveToCloud();
+  refresh();
+  clearForm();
+  btn.disabled = false; btn.textContent = "guardar producto";
+  toast("Producto guardado ✓");
+  showTab("dashboard");
+}
+
+function openEdit(idx) {
+  editIndex = idx;
+  const d = DATA[idx];
+  document.getElementById("e-asin").value = d.asin;
+  document.getElementById("e-mp").value = d.mp || "ES";
+  document.getElementById("e-prod").value = d.producto;
+  document.getElementById("e-img").value = d.img;
+  document.getElementById("e-aplus").value = d.aplus;
+  document.getElementById("e-titulo").value = d.titulo;
+  document.getElementById("e-desc").value = d.desc;
+  document.getElementById("e-bullets").value = d.bullets;
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function closeEdit() {
+  document.getElementById("edit-modal").classList.remove("open");
+  editIndex = -1;
+}
+
+async function applyEdit() {
+  if (editIndex < 0) return;
+  DATA[editIndex] = { ...DATA[editIndex],
+    mp: document.getElementById("e-mp").value,
+    producto: document.getElementById("e-prod").value,
+    img: document.getElementById("e-img").value,
+    aplus: document.getElementById("e-aplus").value,
+    titulo: document.getElementById("e-titulo").value,
+    desc: document.getElementById("e-desc").value,
+    bullets: document.getElementById("e-bullets").value
+  };
+  await saveToCloud();
+  refresh();
+  closeEdit();
+  toast("Cambios guardados ✓");
+}
+
+async function deleteProduct(idx) {
+  if (!confirm("¿Eliminar este producto?")) return;
+  DATA.splice(idx, 1);
+  await saveToCloud();
+  refresh();
+  toast("Producto eliminado");
+}
+
+function exportTSV() {
+  const pending = DATA.filter(d => FIELDS.some(f => d[f]!=="OK"));
+  if (!pending.length) { toast("No hay pendientes para exportar"); return; }
+  const lines = ["ASIN\tMarketplace\tProducto\tCampos pendientes\tScore"];
+  pending.forEach(d => {
+    const miss = FIELDS.filter(f=>d[f]!=="OK").map(f=>FNAME[f]).join(", ");
+    lines.push(`${d.asin}\t${d.mp||"ES"}\t${d.producto}\t${miss}\t${score(d)}/5`);
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type:"text/plain"}));
+  a.download = "pendientes_asin.tsv";
+  a.click();
+}
+
+document.getElementById("edit-modal").addEventListener("click", function(e) {
+  if (e.target === this) closeEdit();
+});
+
+loadFromCloud();
+setInterval(loadFromCloud, 60000);
+</script>
+</body>
+</html>
