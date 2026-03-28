@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Cambios de ASIN</title>
+<title>ASIN Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -220,6 +220,9 @@ td { padding: 10px 14px; vertical-align: middle; }
           <div class="export-option" onclick="exportFile('xlsx')">📊 Excel (.xlsx)</div>
         </div>
       </div>
+      <button class="export-btn" onclick="downloadBackup()" title="Descargar backup JSON">⬇ backup</button>
+      <button class="export-btn" onclick="triggerImport()" title="Restaurar desde backup">⬆ restaurar</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
     </div>
     <div id="dashboard-content"></div>
     <div class="footer-row">
@@ -861,6 +864,36 @@ document.addEventListener("click", function(e) {
 document.getElementById("edit-modal").addEventListener("click", function(e) {
   if (e.target === this) closeEdit();
 });
+
+
+function downloadBackup() {
+  const data = JSON.stringify({ all_data: ALL_DATA, nextIds, exported: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "asin_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+  a.click();
+  toast("Backup descargado ✓");
+}
+
+function triggerImport() { document.getElementById("import-file").click(); }
+
+async function handleImport(e) {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if (!parsed.all_data) { toast("Archivo inválido"); return; }
+    if (!confirm("¿Restaurar datos desde este backup? Se sobreescribirán los datos actuales.")) return;
+    ALL_DATA = parsed.all_data;
+    nextIds = parsed.nextIds || nextIds;
+    saveLocal();
+    await saveToCloud();
+    refresh();
+    toast("Datos restaurados ✓");
+  } catch(err) { toast("Error al leer el archivo"); }
+  e.target.value = "";
+}
 
 loadFromCloud();
 setInterval(() => loadFromCloud(true), 60000);
