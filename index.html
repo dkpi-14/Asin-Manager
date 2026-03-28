@@ -32,15 +32,23 @@
 body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
 
 /* HEADER */
-.header { background: var(--text); color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+.header { background: var(--text); color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .header-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .04em; color: #fff; display: flex; align-items: center; gap: 10px; }
 .header-logo span { background: var(--blue); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 3px; letter-spacing: .06em; }
+.header-right { display: flex; align-items: center; gap: 16px; }
 .sync-status { font-family: var(--mono); font-size: 11px; color: #888; display: flex; align-items: center; gap: 6px; }
 .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #555; transition: background .3s; }
 .sync-dot.ok { background: #2ecc71; }
 .sync-dot.err { background: #e74c3c; }
 .sync-dot.loading { background: #f39c12; animation: pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* MARKETPLACE SELECTOR */
+.mp-selector-wrap { display: flex; align-items: center; gap: 10px; }
+.mp-label { font-family: var(--mono); font-size: 11px; color: #888; letter-spacing: .04em; }
+.mp-select { font-family: var(--mono); font-size: 13px; font-weight: 500; background: #2a2926; color: #fff; border: 1px solid #444; border-radius: var(--radius); padding: 6px 12px; cursor: pointer; outline: none; }
+.mp-select:focus { border-color: var(--blue); }
+.mp-badge { font-family: var(--mono); font-size: 11px; background: #2a2926; color: #aaa; border: 1px solid #444; border-radius: var(--radius); padding: 4px 10px; }
 
 /* LAYOUT */
 .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
@@ -71,6 +79,11 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); font
 .fbtn.active { background: var(--text); color: #fff; border-color: var(--text); }
 .export-btn { font-size: 12px; font-family: var(--mono); padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; }
 .export-btn:hover { background: var(--surface2); }
+.export-wrap { position: relative; }
+.export-menu { display: none; position: absolute; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); min-width: 200px; z-index: 50; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.export-menu.open { display: block; }
+.export-option { padding: 10px 14px; font-size: 13px; font-family: var(--mono); cursor: pointer; color: var(--text); transition: background .1s; }
+.export-option:hover { background: var(--surface2); }
 
 /* TABLE */
 .tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
@@ -82,7 +95,10 @@ tbody tr:hover { background: #fafaf7; }
 td { padding: 10px 14px; vertical-align: middle; }
 .asin-code { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); }
 .mp-tag { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
-.prod-name { font-size: 12px; color: var(--text2); line-height: 1.45; word-break: break-word; max-width: 240px; }
+.prod-name { font-size: 12px; line-height: 1.45; word-break: break-word; max-width: 240px; }
+.prod-link { color: var(--blue); text-decoration: none; font-size: 12px; }
+.prod-link:hover { text-decoration: underline; }
+.prod-nolink { color: var(--text2); font-size: 12px; }
 .missing-hint { font-size: 11px; color: var(--red); margin-top: 3px; font-family: var(--mono); }
 
 /* DOTS */
@@ -119,6 +135,9 @@ td { padding: 10px 14px; vertical-align: middle; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue); }
 .form-group textarea { resize: vertical; min-height: 72px; font-family: var(--sans); font-size: 13px; }
 .form-group input[readonly] { opacity: .5; cursor: not-allowed; }
+.field-error { font-size: 11px; color: var(--red); font-family: var(--mono); margin-top: 3px; display: none; }
+.field-error.show { display: block; }
+.input-error { border-color: var(--red) !important; background: var(--red-bg) !important; }
 .form-actions { display: flex; gap: 10px; margin-top: 20px; }
 .btn-primary { padding: 10px 22px; font-size: 13px; font-family: var(--mono); border: none; background: var(--text); color: #fff; border-radius: var(--radius); cursor: pointer; font-weight: 500; letter-spacing: .02em; transition: opacity .15s; }
 .btn-primary:hover { opacity: .85; }
@@ -129,7 +148,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* MODAL */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: flex-start; justify-content: center; padding-top: 60px; }
 .modal-overlay.open { display: flex; }
-.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; }
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .modal-title { font-size: 14px; font-family: var(--mono); font-weight: 500; }
 .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text2); line-height: 1; padding: 2px 6px; }
@@ -142,12 +161,18 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* EMPTY */
 .empty-state { padding: 40px; text-align: center; color: var(--text3); font-family: var(--mono); font-size: 13px; }
 
+/* MP EMPTY */
+.mp-empty { background: var(--surface); border: 1px dashed var(--border2); border-radius: var(--radius-lg); padding: 48px; text-align: center; }
+.mp-empty-title { font-family: var(--mono); font-size: 14px; color: var(--text2); margin-bottom: 8px; }
+.mp-empty-sub { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+
 @media (max-width: 700px) {
   .metrics { grid-template-columns: repeat(3, 1fr); }
   .form-grid { grid-template-columns: 1fr; }
   .form-group.full { grid-column: 1; }
   .container { padding: 16px 14px; }
   .header { padding: 12px 16px; }
+  .mp-selector-wrap { width: 100%; }
 }
 </style>
 </head>
@@ -155,11 +180,24 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 <div class="header">
   <div class="header-logo">
-    ASIN MANAGER <span>ES · IT · FR · GER · BEL · UK</span>
+    ASIN MANAGER <span>multi-marketplace</span>
   </div>
-  <div class="sync-status">
-    <div class="sync-dot" id="sync-dot"></div>
-    <span id="sync-label">conectando...</span>
+  <div class="header-right">
+    <div class="mp-selector-wrap">
+      <span class="mp-label">marketplace</span>
+      <select class="mp-select" id="mp-selector" onchange="onMarketplaceChange()">
+        <option value="ES">🇪🇸 España (ES)</option>
+        <option value="IT">🇮🇹 Italia (IT)</option>
+        <option value="FR">🇫🇷 Francia (FR)</option>
+        <option value="GER">🇩🇪 Alemania (GER)</option>
+        <option value="BEL">🇧🇪 Bélgica (BEL)</option>
+        <option value="UK">🇬🇧 Reino Unido (UK)</option>
+      </select>
+    </div>
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">conectando...</span>
+    </div>
   </div>
 </div>
 
@@ -175,22 +213,15 @@ td { padding: 10px 14px; vertical-align: middle; }
     <div class="toolbar">
       <input type="text" class="search-input" id="search" placeholder="buscar por ASIN o nombre..." oninput="renderTable()">
       <div class="filter-group" id="filters"></div>
-      <button class="export-btn" onclick="exportTSV()">exportar pendientes ↓</button>
+      <div class="export-wrap" id="export-wrap">
+        <button class="export-btn" onclick="toggleExportMenu()">exportar pendientes ↓</button>
+        <div class="export-menu" id="export-menu">
+          <div class="export-option" onclick="exportFile('csv')">📄 CSV (Excel, Sheets)</div>
+          <div class="export-option" onclick="exportFile('xlsx')">📊 Excel (.xlsx)</div>
+        </div>
+      </div>
     </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:120px">ASIN</th>
-            <th>Producto</th>
-            <th style="width:190px">Img · A+ · Tít · Desc · Blts</th>
-            <th style="width:80px">Score</th>
-            <th style="width:120px">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
+    <div id="dashboard-content"></div>
     <div class="footer-row">
       <span id="footer-count"></span>
       <span id="last-sync-time"></span>
@@ -205,15 +236,23 @@ td { padding: 10px 14px; vertical-align: middle; }
         <div class="form-grid">
           <div class="form-group">
             <label>ASIN *</label>
-            <input type="text" id="f-asin" placeholder="ej. B0F9FY7PYN" maxlength="12" oninput="this.value=this.value.toUpperCase()">
+            <input type="text" id="f-asin" placeholder="ej. B0F9FY7PYN" maxlength="12" oninput="onAsinInput(this)">
+            <span class="field-error" id="asin-error"></span>
           </div>
           <div class="form-group">
             <label>Marketplace</label>
-            <select id="f-mp"><option>ES</option><option>IT</option><option>FR</option><option>GER</option><option>BEL</option><option>UK</option></select>
+            <select id="f-mp">
+              <option>ES</option><option>IT</option><option>FR</option>
+              <option>GER</option><option>BEL</option><option>UK</option>
+            </select>
           </div>
           <div class="form-group full">
             <label>Nombre del producto *</label>
             <textarea id="f-prod" placeholder="Nombre completo tal como aparece en Amazon"></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Link del producto (Amazon)</label>
+            <input type="text" id="f-link" placeholder="https://www.amazon.es/dp/...">
           </div>
           <div class="form-group">
             <label>Imágenes</label>
@@ -265,6 +304,10 @@ td { padding: 10px 14px; vertical-align: middle; }
         <label>Nombre del producto</label>
         <textarea id="e-prod"></textarea>
       </div>
+      <div class="form-group full">
+        <label>Link del producto (Amazon)</label>
+        <input type="text" id="e-link" placeholder="https://www.amazon.es/dp/...">
+      </div>
       <div class="form-group">
         <label>Imágenes</label>
         <select id="e-img"><option>OK</option><option>NO</option><option>En proceso</option></select>
@@ -299,84 +342,88 @@ td { padding: 10px 14px; vertical-align: middle; }
 const BIN_ID = "69c69566b7ec241ddcace686";
 const API_KEY = "$2a$10$vnTYIn6YdCW7ZGQgKv8SXOTVvMB1/goorcNSLc48kMHDClCqgE55q";
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
+const MARKETPLACES = ["ES","IT","FR","GER","BEL","UK"];
 const FIELDS = ["img","aplus","titulo","desc","bullets"];
 const FLABELS = ["Img","A+","Tít","Desc","Blts"];
 const FNAME = {img:"Imágenes",aplus:"Contenido A+",titulo:"Título",desc:"Descripción",bullets:"Bullet Points"};
 
-const INITIAL_DATA = [
-  {id:1,asin:"B0F9FY7PYN",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul"},
-  {id:2,asin:"B088KL1HQ7",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 1000 - Blanco"},
-  {id:3,asin:"B088C1VQHS",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 200 - Blanco"},
-  {id:4,asin:"B088C216C6",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 300 - Blanco"},
-  {id:5,asin:"B088C1DFCJ",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Blanco"},
-  {id:6,asin:"B0GSH296R5",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"NO",bullets:"NO",producto:"XARA Organizador bajo Fregadero - Pack 2"},
-  {id:7,asin:"B0GSG14YLT",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"OK",bullets:"OK",producto:"Organizador Bajo Fregadero para Cocina o Baño"},
-  {id:8,asin:"B0G4S8XQRH",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 160x90 (Pack 2) Sin Alas"},
-  {id:9,asin:"B0G4SDM2RL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 160x90 (Pack 4) Sin Alas"},
-  {id:10,asin:"B0G4SCRG89",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 75x90 Sin Alas"},
-  {id:11,asin:"B0GN9YDP7Z",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul v2"},
-  {id:12,asin:"B0GKHPHWKL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 Sin Alas"},
-  {id:13,asin:"B0G4SF4NR5",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 (Pack 2) Sin Alas"},
-  {id:14,asin:"B0G4SDKNNW",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 135x90 Sin Alas"},
-  {id:15,asin:"B0G4SBMLKK",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 135x90 (Pack 4) Sin Alas"},
-  {id:16,asin:"B083V6PH9W",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 90x85 (Pack 2) con Alas"},
-  {id:17,asin:"B092W79MFN",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 160x85 (Pack 2) con Alas"},
-  {id:18,asin:"B08NF83KGW",mp:"ES",img:"OK",aplus:"OK",titulo:"En proceso",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 135x85 (Pack 2) con Alas"},
-  {id:19,asin:"B085TQ7FWB",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 90x85 con Alas"},
-  {id:20,asin:"B08NF98SWP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 135x85 con Alas"},
-  {id:21,asin:"B092W67H6S",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 160x85 con Alas"},
-  {id:22,asin:"B09FTJYVZG",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"PimPam Factory Empapadores 200x85 con Alas"},
-  {id:23,asin:"B09FTGPT59",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"PimPam Factory Empapadores 50x70 Sin Alas B"},
-  {id:24,asin:"B0FX3B8TB4",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Guantes Polietileno Pack 1.000"},
-  {id:25,asin:"B0C5JX299Q",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Guantes Polietileno Pack 10.000"},
-  {id:26,asin:"B0FKZ6J4SW",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr"},
-  {id:27,asin:"B0F8P75H96",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Pack 400 Gorros + Cubrezapatos + Batas + Guantes"},
-  {id:28,asin:"B0C29CBVCQ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr (B)"},
-  {id:29,asin:"B0C28Y1SYF",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 50 - 25gr"},
-  {id:30,asin:"B0FKZ7555V",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 10 - 35gr"},
-  {id:31,asin:"B0FQ5M67T4",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",producto:"XARA Bata Quirurgica XXXL Pack 10 - 35gr"},
-  {id:32,asin:"B0C28YX2CD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 50 - 35gr"},
-  {id:33,asin:"B0C28WLD9P",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica L Pack 10 - 35gr (B)"},
-  {id:34,asin:"B0C28YGVSJ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XXXL Pack 50 - 35gr"},
-  {id:35,asin:"B0C28XQDGP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 10 - 35gr"},
-  {id:36,asin:"B0C28XH3BD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",producto:"XARA Bata Quirurgica XL Pack 50 - 35gr"},
+const INITIAL_ES = [
+  {id:1,asin:"B0F9FY7PYN",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul"},
+  {id:2,asin:"B088KL1HQ7",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 1000 - Blanco"},
+  {id:3,asin:"B088C1VQHS",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 200 - Blanco"},
+  {id:4,asin:"B088C216C6",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 300 - Blanco"},
+  {id:5,asin:"B088C1DFCJ",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Blanco"},
+  {id:6,asin:"B0GSH296R5",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"NO",bullets:"NO",link:"",producto:"XARA Organizador bajo Fregadero - Pack 2"},
+  {id:7,asin:"B0GSG14YLT",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"OK",bullets:"OK",link:"",producto:"Organizador Bajo Fregadero para Cocina o Baño"},
+  {id:8,asin:"B0G4S8XQRH",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x90 (Pack 2) Sin Alas"},
+  {id:9,asin:"B0G4SDM2RL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x90 (Pack 4) Sin Alas"},
+  {id:10,asin:"B0G4SCRG89",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 75x90 Sin Alas"},
+  {id:11,asin:"B0GN9YDP7Z",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul v2"},
+  {id:12,asin:"B0GKHPHWKL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 Sin Alas"},
+  {id:13,asin:"B0G4SF4NR5",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 (Pack 2) Sin Alas"},
+  {id:14,asin:"B0G4SDKNNW",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x90 Sin Alas"},
+  {id:15,asin:"B0G4SBMLKK",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x90 (Pack 4) Sin Alas"},
+  {id:16,asin:"B083V6PH9W",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 90x85 (Pack 2) con Alas"},
+  {id:17,asin:"B092W79MFN",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x85 (Pack 2) con Alas"},
+  {id:18,asin:"B08NF83KGW",mp:"ES",img:"OK",aplus:"OK",titulo:"En proceso",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x85 (Pack 2) con Alas"},
+  {id:19,asin:"B085TQ7FWB",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 90x85 con Alas"},
+  {id:20,asin:"B08NF98SWP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x85 con Alas"},
+  {id:21,asin:"B092W67H6S",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x85 con Alas"},
+  {id:22,asin:"B09FTJYVZG",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 200x85 con Alas"},
+  {id:23,asin:"B09FTGPT59",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 Sin Alas B"},
+  {id:24,asin:"B0FX3B8TB4",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Guantes Polietileno Pack 1.000"},
+  {id:25,asin:"B0C5JX299Q",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Guantes Polietileno Pack 10.000"},
+  {id:26,asin:"B0FKZ6J4SW",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr"},
+  {id:27,asin:"B0F8P75H96",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Pack 400 Gorros + Cubrezapatos + Batas + Guantes"},
+  {id:28,asin:"B0C29CBVCQ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr (B)"},
+  {id:29,asin:"B0C28Y1SYF",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 50 - 25gr"},
+  {id:30,asin:"B0FKZ7555V",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 10 - 35gr"},
+  {id:31,asin:"B0FQ5M67T4",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XXXL Pack 10 - 35gr"},
+  {id:32,asin:"B0C28YX2CD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 50 - 35gr"},
+  {id:33,asin:"B0C28WLD9P",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 10 - 35gr (B)"},
+  {id:34,asin:"B0C28YGVSJ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XXXL Pack 50 - 35gr"},
+  {id:35,asin:"B0C28XQDGP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 35gr"},
+  {id:36,asin:"B0C28XH3BD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 50 - 35gr"},
 ];
 
-let DATA = [];
-let nextId = 100;
+// All data keyed by marketplace
+let ALL_DATA = { ES: [], IT: [], FR: [], GER: [], BEL: [], UK: [] };
+let nextIds = { ES: 100, IT: 100, FR: 100, GER: 100, BEL: 100, UK: 100 };
+let currentMP = "ES";
 let activeFilter = "all";
 let editIndex = -1;
 let saving = false;
 
+function currentData() { return ALL_DATA[currentMP] || []; }
+
 function setSyncStatus(state, label) {
-  const dot = document.getElementById("sync-dot");
-  const lbl = document.getElementById("sync-label");
-  dot.className = "sync-dot " + state;
-  lbl.textContent = label;
+  document.getElementById("sync-dot").className = "sync-dot " + state;
+  document.getElementById("sync-label").textContent = label;
 }
 
 async function loadFromCloud() {
   setSyncStatus("loading", "cargando...");
   try {
-    const r = await fetch(API_URL + "/latest", {
-      headers: { "X-Master-Key": API_KEY }
-    });
-    if (!r.ok) throw new Error("error");
+    const r = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+    if (!r.ok) throw new Error();
     const json = await r.json();
-    const record = json.record;
-    if (record && record.data && record.data.length > 0) {
-      DATA = record.data;
-      nextId = record.nextId || 100;
+    const rec = json.record;
+    if (rec && rec.all_data) {
+      ALL_DATA = rec.all_data;
+      nextIds = rec.nextIds || nextIds;
+      // Migrate old flat data format if needed
+      if (rec.data && rec.data.length > 0 && ALL_DATA.ES.length === 0) {
+        ALL_DATA.ES = rec.data.map(d => ({...d, link: d.link||""}));
+      }
     } else {
-      DATA = [...INITIAL_DATA];
+      ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
       await saveToCloud();
     }
     setSyncStatus("ok", "sincronizado");
     updateLastSync();
   } catch(e) {
     setSyncStatus("err", "sin conexión");
-    DATA = [...INITIAL_DATA];
+    ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
     toast("Sin conexión. Usando datos locales.");
   }
   refresh();
@@ -390,9 +437,9 @@ async function saveToCloud() {
     const r = await fetch(API_URL, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-      body: JSON.stringify({ data: DATA, nextId })
+      body: JSON.stringify({ all_data: ALL_DATA, nextIds })
     });
-    if (!r.ok) throw new Error("error");
+    if (!r.ok) throw new Error();
     setSyncStatus("ok", "guardado");
     updateLastSync();
   } catch(e) {
@@ -404,13 +451,21 @@ async function saveToCloud() {
 
 function updateLastSync() {
   const el = document.getElementById("last-sync-time");
-  if (el) el.textContent = "última sync: " + new Date().toLocaleTimeString("es-ES", {hour:"2-digit",minute:"2-digit"});
+  if (el) el.textContent = "última sync: " + new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
 }
 
-function score(d) { return FIELDS.reduce((s,f) => s + (d[f]==="OK" ? 1 : 0), 0); }
-function scoreColor(s) { return s===5 ? "#1a7a3c" : s>=3 ? "#a05c00" : "#c0392b"; }
-function dotClass(v) { return v==="OK" ? "d-ok" : v==="NO" ? "d-no" : "d-wip"; }
-function dotLabel(v) { return v==="OK" ? "✓" : v==="NO" ? "✗" : "…"; }
+function onMarketplaceChange() {
+  currentMP = document.getElementById("mp-selector").value;
+  activeFilter = "all";
+  // Sync form marketplace selector too
+  document.getElementById("f-mp").value = currentMP;
+  refresh();
+}
+
+function score(d) { return FIELDS.reduce((s,f) => s+(d[f]==="OK"?1:0), 0); }
+function scoreColor(s) { return s===5?"#1a7a3c":s>=3?"#a05c00":"#c0392b"; }
+function dotClass(v) { return v==="OK"?"d-ok":v==="NO"?"d-no":"d-wip"; }
+function dotLabel(v) { return v==="OK"?"✓":v==="NO"?"✗":"…"; }
 
 function showTab(t) {
   document.querySelectorAll(".tab").forEach((el,i) => el.classList.toggle("active", ["dashboard","add"][i]===t));
@@ -425,24 +480,26 @@ function setFilter(f) {
 }
 
 function getFiltered() {
+  const data = currentData();
   const q = (document.getElementById("search")||{value:""}).value.toLowerCase().trim();
-  return DATA.filter(d => {
-    const mq = !q || d.asin.toLowerCase().includes(q) || d.producto.toLowerCase().includes(q) || (d.mp||"").toLowerCase().includes(q);
+  return data.filter(d => {
+    const mq = !q || d.asin.toLowerCase().includes(q) || d.producto.toLowerCase().includes(q);
     if (!mq) return false;
     if (activeFilter==="all") return true;
-    if (activeFilter==="pending") return FIELDS.some(f => d[f]!=="OK");
+    if (activeFilter==="pending") return FIELDS.some(f=>d[f]!=="OK");
     if (activeFilter==="complete") return score(d)===5;
     return d[activeFilter]!=="OK";
   });
 }
 
 function renderMetrics() {
-  const t=DATA.length, comp=DATA.filter(d=>score(d)===5).length;
-  const pend=DATA.filter(d=>score(d)<5).length;
-  const naplus=DATA.filter(d=>d.aplus!=="OK").length;
-  const ndesc=DATA.filter(d=>d.desc!=="OK").length;
+  const data = currentData();
+  const t=data.length, comp=data.filter(d=>score(d)===5).length;
+  const pend=data.filter(d=>score(d)<5).length;
+  const naplus=data.filter(d=>d.aplus!=="OK").length;
+  const ndesc=data.filter(d=>d.desc!=="OK").length;
   document.getElementById("metrics").innerHTML=`
-    <div class="metric"><div class="metric-label">Total</div><div class="metric-value">${t}</div></div>
+    <div class="metric"><div class="metric-label">Total · ${currentMP}</div><div class="metric-value">${t}</div></div>
     <div class="metric"><div class="metric-label">Completos</div><div class="metric-value grn">${comp}</div></div>
     <div class="metric"><div class="metric-label">Pendientes</div><div class="metric-value red">${pend}</div></div>
     <div class="metric"><div class="metric-label">Sin A+</div><div class="metric-value amb">${naplus}</div></div>
@@ -450,12 +507,13 @@ function renderMetrics() {
 }
 
 function renderFilters() {
+  const data = currentData();
   const counts = {
-    all: DATA.length,
-    pending: DATA.filter(d=>FIELDS.some(f=>d[f]!=="OK")).length,
-    complete: DATA.filter(d=>score(d)===5).length,
-    aplus: DATA.filter(d=>d.aplus!=="OK").length,
-    desc: DATA.filter(d=>d.desc!=="OK").length
+    all: data.length,
+    pending: data.filter(d=>FIELDS.some(f=>d[f]!=="OK")).length,
+    complete: data.filter(d=>score(d)===5).length,
+    aplus: data.filter(d=>d.aplus!=="OK").length,
+    desc: data.filter(d=>d.desc!=="OK").length
   };
   const labels = {all:"todos",pending:"pendientes",complete:"completos",aplus:"sin A+",desc:"sin descripción"};
   document.getElementById("filters").innerHTML = Object.entries(labels).map(([f,l]) =>
@@ -464,35 +522,64 @@ function renderFilters() {
 }
 
 function renderTable() {
-  const rows = getFiltered();
-  const tbody = document.getElementById("tbody");
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">sin resultados</td></tr>`;
+  const data = currentData();
+  const content = document.getElementById("dashboard-content");
+
+  if (data.length === 0) {
+    content.innerHTML = `
+      <div class="mp-empty">
+        <div class="mp-empty-title">Sin productos en ${currentMP}</div>
+        <div class="mp-empty-sub">Este marketplace todavía no tiene productos cargados.</div>
+        <button class="btn-primary" onclick="showTab('add')">+ agregar primer producto</button>
+      </div>`;
     document.getElementById("footer-count").textContent = "";
     return;
   }
-  tbody.innerHTML = rows.map(d => {
-    const s = score(d), pct = Math.round(s/5*100);
-    const missing = FIELDS.filter(f=>d[f]!=="OK").map(f=>FNAME[f]);
-    const idx = DATA.indexOf(d);
-    return `<tr>
-      <td><div class="asin-code">${d.asin}</div><div class="mp-tag">${d.mp||"ES"}</div></td>
-      <td><div class="prod-name">${d.producto}${missing.length ? `<div class="missing-hint">${missing.join(", ")}</div>` : ""}</div></td>
-      <td>
-        <div class="dots-row">${FIELDS.map((f,i)=>`<div class="dot ${dotClass(d[f])}" title="${FLABELS[i]}: ${d[f]}">${dotLabel(d[f])}</div>`).join("")}</div>
-        <div class="dots-labels">${FLABELS.join(" · ")}</div>
-      </td>
-      <td>
-        <div class="score-num" style="color:${scoreColor(s)}">${s}/5</div>
-        <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${scoreColor(s)}"></div></div>
-      </td>
-      <td>
-        <button class="act-btn" onclick="openEdit(${idx})">editar</button>
-        <button class="act-btn del" onclick="deleteProduct(${idx})">✕</button>
-      </td>
-    </tr>`;
-  }).join("");
-  document.getElementById("footer-count").textContent = `${rows.length} de ${DATA.length} productos`;
+
+  const rows = getFiltered();
+  const tableHTML = `
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:120px">ASIN</th>
+            <th>Producto</th>
+            <th style="width:190px">Img · A+ · Tít · Desc · Blts</th>
+            <th style="width:80px">Score</th>
+            <th style="width:120px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">${rows.length === 0
+          ? `<tr><td colspan="5" class="empty-state">sin resultados</td></tr>`
+          : rows.map(d => {
+              const s = score(d), pct = Math.round(s/5*100);
+              const missing = FIELDS.filter(f=>d[f]!=="OK").map(f=>FNAME[f]);
+              const idx = ALL_DATA[currentMP].indexOf(d);
+              const nameHTML = d.link
+                ? `<a href="${d.link}" target="_blank" rel="noopener" class="prod-link">${d.producto}</a>`
+                : `<span class="prod-nolink">${d.producto}</span>`;
+              return `<tr>
+                <td><div class="asin-code">${d.asin}</div><div class="mp-tag">${d.mp||currentMP}</div></td>
+                <td><div class="prod-name">${nameHTML}${missing.length?`<div class="missing-hint">${missing.join(", ")}</div>`:""}</div></td>
+                <td>
+                  <div class="dots-row">${FIELDS.map((f,i)=>`<div class="dot ${dotClass(d[f])}" title="${FLABELS[i]}: ${d[f]}">${dotLabel(d[f])}</div>`).join("")}</div>
+                  <div class="dots-labels">${FLABELS.join(" · ")}</div>
+                </td>
+                <td>
+                  <div class="score-num" style="color:${scoreColor(s)}">${s}/5</div>
+                  <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${scoreColor(s)}"></div></div>
+                </td>
+                <td>
+                  <button class="act-btn" onclick="openEdit(${idx})">editar</button>
+                  <button class="act-btn del" onclick="deleteProduct(${idx})">✕</button>
+                </td>
+              </tr>`;
+            }).join("")
+        }</tbody>
+      </table>
+    </div>`;
+  content.innerHTML = tableHTML;
+  document.getElementById("footer-count").textContent = `${rows.length} de ${data.length} productos · ${currentMP}`;
 }
 
 function refresh() { renderMetrics(); renderFilters(); renderTable(); }
@@ -504,9 +591,14 @@ function toast(msg) {
 }
 
 function clearForm() {
+  const errEl = document.getElementById("asin-error");
+  if (errEl) { errEl.textContent = ""; errEl.classList.remove("show"); }
+  const asinInput = document.getElementById("f-asin");
+  if (asinInput) asinInput.classList.remove("input-error");
   document.getElementById("f-asin").value = "";
   document.getElementById("f-prod").value = "";
-  document.getElementById("f-mp").value = "ES";
+  document.getElementById("f-link").value = "";
+  document.getElementById("f-mp").value = currentMP;
   document.getElementById("f-img").value = "OK";
   document.getElementById("f-aplus").value = "NO";
   document.getElementById("f-titulo").value = "OK";
@@ -514,21 +606,61 @@ function clearForm() {
   document.getElementById("f-bullets").value = "OK";
 }
 
+function onAsinInput(el) {
+  el.value = el.value.toUpperCase();
+  const asin = el.value.trim();
+  const errEl = document.getElementById("asin-error");
+  const mp = document.getElementById("f-mp").value;
+  // Clear error while typing if not 10 chars yet
+  if (asin.length < 10) { errEl.textContent = ""; errEl.classList.remove("show"); el.classList.remove("input-error"); return; }
+  // Check format
+  if (!/^[A-Z0-9]{10}$/.test(asin)) {
+    errEl.textContent = "Formato inválido — solo letras y números, exactamente 10 caracteres.";
+    errEl.classList.add("show"); el.classList.add("input-error"); return;
+  }
+  // Check duplicate across ALL marketplaces
+  const dupIn = Object.entries(ALL_DATA).filter(([m, list]) => list.some(d => d.asin === asin)).map(([m]) => m);
+  if (dupIn.length > 0) {
+    errEl.textContent = `ASIN duplicado — ya existe en: ${dupIn.join(", ")}`;
+    errEl.classList.add("show"); el.classList.add("input-error"); return;
+  }
+  errEl.textContent = ""; errEl.classList.remove("show"); el.classList.remove("input-error");
+}
+
 async function saveProduct() {
   const asin = document.getElementById("f-asin").value.trim().toUpperCase();
   const prod = document.getElementById("f-prod").value.trim();
+  const link = document.getElementById("f-link").value.trim();
+  const mp = document.getElementById("f-mp").value;
+  const errEl = document.getElementById("asin-error");
   if (!asin || !prod) { toast("ASIN y nombre son obligatorios"); return; }
-  if (!/^[A-Z0-9]{10}$/.test(asin)) { toast("El ASIN debe tener exactamente 10 caracteres alfanuméricos"); return; }
+  if (!/^[A-Z0-9]{10}$/.test(asin)) {
+    errEl.textContent = "Formato inválido — solo letras y números, exactamente 10 caracteres.";
+    errEl.classList.add("show"); document.getElementById("f-asin").classList.add("input-error"); return;
+  }
+  // Duplicate check across all marketplaces
+  const dupIn = Object.entries(ALL_DATA).filter(([m, list]) => list.some(d => d.asin === asin)).map(([m]) => m);
+  if (dupIn.length > 0) {
+    errEl.textContent = `ASIN duplicado — ya existe en: ${dupIn.join(", ")}`;
+    errEl.classList.add("show"); document.getElementById("f-asin").classList.add("input-error"); return;
+  }
   const btn = document.getElementById("save-btn");
   btn.disabled = true; btn.textContent = "guardando...";
   const entry = {
-    id: nextId++, asin, mp: document.getElementById("f-mp").value,
-    img: document.getElementById("f-img").value, aplus: document.getElementById("f-aplus").value,
-    titulo: document.getElementById("f-titulo").value, desc: document.getElementById("f-desc").value,
-    bullets: document.getElementById("f-bullets").value, producto: prod
+    id: nextIds[mp]++, asin, mp,
+    img: document.getElementById("f-img").value,
+    aplus: document.getElementById("f-aplus").value,
+    titulo: document.getElementById("f-titulo").value,
+    desc: document.getElementById("f-desc").value,
+    bullets: document.getElementById("f-bullets").value,
+    link, producto: prod
   };
-  DATA.push(entry);
+  if (!ALL_DATA[mp]) ALL_DATA[mp] = [];
+  ALL_DATA[mp].push(entry);
   await saveToCloud();
+  // Switch to the marketplace where it was saved
+  currentMP = mp;
+  document.getElementById("mp-selector").value = mp;
   refresh();
   clearForm();
   btn.disabled = false; btn.textContent = "guardar producto";
@@ -538,10 +670,11 @@ async function saveProduct() {
 
 function openEdit(idx) {
   editIndex = idx;
-  const d = DATA[idx];
+  const d = ALL_DATA[currentMP][idx];
   document.getElementById("e-asin").value = d.asin;
-  document.getElementById("e-mp").value = d.mp || "ES";
+  document.getElementById("e-mp").value = d.mp || currentMP;
   document.getElementById("e-prod").value = d.producto;
+  document.getElementById("e-link").value = d.link || "";
   document.getElementById("e-img").value = d.img;
   document.getElementById("e-aplus").value = d.aplus;
   document.getElementById("e-titulo").value = d.titulo;
@@ -557,9 +690,11 @@ function closeEdit() {
 
 async function applyEdit() {
   if (editIndex < 0) return;
-  DATA[editIndex] = { ...DATA[editIndex],
+  ALL_DATA[currentMP][editIndex] = {
+    ...ALL_DATA[currentMP][editIndex],
     mp: document.getElementById("e-mp").value,
     producto: document.getElementById("e-prod").value,
+    link: document.getElementById("e-link").value.trim(),
     img: document.getElementById("e-img").value,
     aplus: document.getElementById("e-aplus").value,
     titulo: document.getElementById("e-titulo").value,
@@ -574,25 +709,85 @@ async function applyEdit() {
 
 async function deleteProduct(idx) {
   if (!confirm("¿Eliminar este producto?")) return;
-  DATA.splice(idx, 1);
+  ALL_DATA[currentMP].splice(idx, 1);
   await saveToCloud();
   refresh();
   toast("Producto eliminado");
 }
 
-function exportTSV() {
-  const pending = DATA.filter(d => FIELDS.some(f => d[f]!=="OK"));
-  if (!pending.length) { toast("No hay pendientes para exportar"); return; }
-  const lines = ["ASIN\tMarketplace\tProducto\tCampos pendientes\tScore"];
-  pending.forEach(d => {
-    const miss = FIELDS.filter(f=>d[f]!=="OK").map(f=>FNAME[f]).join(", ");
-    lines.push(`${d.asin}\t${d.mp||"ES"}\t${d.producto}\t${miss}\t${score(d)}/5`);
-  });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type:"text/plain"}));
-  a.download = "pendientes_asin.tsv";
-  a.click();
+function toggleExportMenu() {
+  document.getElementById("export-menu").classList.toggle("open");
 }
+
+function exportFile(format) {
+  document.getElementById("export-menu").classList.remove("open");
+  const data = currentData();
+  const pending = data.filter(d => FIELDS.some(f => d[f] !== "OK"));
+  if (!pending.length) { toast("No hay pendientes para exportar"); return; }
+
+  const headers = ["ASIN", "Marketplace", "Producto", "Link", "Imágenes", "Contenido A+", "Título", "Descripción", "Bullet Points", "Campos pendientes", "Score"];
+  const rows = pending.map(d => {
+    const miss = FIELDS.filter(f => d[f] !== "OK").map(f => FNAME[f]).join(", ");
+    return [d.asin, d.mp || currentMP, d.producto, d.link || "", d.img, d.aplus, d.titulo, d.desc, d.bullets, miss, `${score(d)}/5`];
+  });
+
+  if (format === "csv") {
+    const escape = v => `"${String(v).replace(/"/g, '""')}"`;
+    const lines = [headers.map(escape).join(","), ...rows.map(r => r.map(escape).join(","))];
+    const bom = "\uFEFF"; // UTF-8 BOM so Excel opens it with accents correctly
+    const blob = new Blob([bom + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `pendientes_${currentMP}.csv`;
+    a.click();
+  } else {
+    // Build XLSX manually (no external lib needed)
+    const xmlRows = [headers, ...rows].map(row =>
+      `<row>${row.map((v, ci) => {
+        const col = String.fromCharCode(65 + ci);
+        const isNum = false;
+        return `<c r="${col}1" t="inlineStr"><is><t>${String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</t></is></c>`;
+      }).join("")}</row>`
+    );
+    // Fix row numbers
+    const xmlRowsFixed = [headers, ...rows].map((row, ri) =>
+      `<row r="${ri + 1}">${row.map((v, ci) => {
+        const col = String.fromCharCode(65 + ci);
+        return `<c r="${col}${ri + 1}" t="inlineStr"><is><t>${String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</t></is></c>`;
+      }).join("")}</row>`
+    ).join("");
+
+    const sheet = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${xmlRowsFixed}</sheetData></worksheet>`;
+    const workbook = `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Pendientes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
+    const rels = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`;
+    const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`;
+
+    // Use JSZip via CDN to build the xlsx
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    script.onload = () => {
+      const zip = new JSZip();
+      zip.file("[Content_Types].xml", contentTypes);
+      zip.folder("_rels");
+      zip.file("xl/workbook.xml", workbook);
+      zip.file("xl/_rels/workbook.xml.rels", rels);
+      zip.file("xl/worksheets/sheet1.xml", sheet);
+      zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }).then(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `pendientes_${currentMP}.xlsx`;
+        a.click();
+      });
+    };
+    document.head.appendChild(script);
+  }
+}
+
+// Close export menu when clicking outside
+document.addEventListener("click", function(e) {
+  const wrap = document.getElementById("export-wrap");
+  if (wrap && !wrap.contains(e.target)) document.getElementById("export-menu").classList.remove("open");
+});
 
 document.getElementById("edit-modal").addEventListener("click", function(e) {
   if (e.target === this) closeEdit();
