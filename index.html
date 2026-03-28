@@ -741,45 +741,24 @@ function exportFile(format) {
     a.download = `pendientes_${currentMP}.csv`;
     a.click();
   } else {
-    // Build XLSX manually (no external lib needed)
-    const xmlRows = [headers, ...rows].map(row =>
-      `<row>${row.map((v, ci) => {
-        const col = String.fromCharCode(65 + ci);
-        const isNum = false;
-        return `<c r="${col}1" t="inlineStr"><is><t>${String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</t></is></c>`;
-      }).join("")}</row>`
-    );
-    // Fix row numbers
-    const xmlRowsFixed = [headers, ...rows].map((row, ri) =>
-      `<row r="${ri + 1}">${row.map((v, ci) => {
-        const col = String.fromCharCode(65 + ci);
-        return `<c r="${col}${ri + 1}" t="inlineStr"><is><t>${String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</t></is></c>`;
-      }).join("")}</row>`
-    ).join("");
 
-    const sheet = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${xmlRowsFixed}</sheetData></worksheet>`;
-    const workbook = `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Pendientes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
-    const rels = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`;
-    const contentTypes = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`;
-
-    // Use JSZip via CDN to build the xlsx
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
-    script.onload = () => {
-      const zip = new JSZip();
-      zip.file("[Content_Types].xml", contentTypes);
-      zip.folder("_rels");
-      zip.file("xl/workbook.xml", workbook);
-      zip.file("xl/_rels/workbook.xml.rels", rels);
-      zip.file("xl/worksheets/sheet1.xml", sheet);
-      zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }).then(blob => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `pendientes_${currentMP}.xlsx`;
-        a.click();
-      });
+    // Use SheetJS for proper xlsx generation
+    const loadAndExport = () => {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      // Column widths
+      ws['!cols'] = [12,10,40,30,10,10,10,12,12,30,8].map(w => ({wch: w}));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `Pendientes ${currentMP}`);
+      XLSX.writeFile(wb, `pendientes_${currentMP}.xlsx`);
     };
-    document.head.appendChild(script);
+    if (typeof XLSX !== "undefined") {
+      loadAndExport();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      script.onload = loadAndExport;
+      document.head.appendChild(script);
+    }
   }
 }
 
