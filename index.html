@@ -346,7 +346,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 //  ASIN MANAGER — Google Sheets Edition
 //  Reemplaza SCRIPT_URL con la URL de tu Apps Script
 // ============================================================
-const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbw_qbLWQdgMntXNgaFbMi7UmKZBL-OqcVkNTvKbZyDgMqIRvYDUT_sa3cg2vXFJKqwM/exec";
+const SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbyrW7EK4rFAQNy9uurnAE70RL1d6ZxYgLSuk5GKeMhTl-Tykn29t02qMKJWgUS_Hjk/exec";
 const MARKETPLACES = ["ES","IT","FR","GER","BEL","UK"];
 const FIELDS       = ["img","aplus","titulo","desc","bullets"];
 const FLABELS      = ["Img","A+","Tít","Desc","Blts"];
@@ -416,12 +416,19 @@ function updateLastSync(){
 // ── API ──────────────────────────────────────────────────────
 async function apiGet(params){
   const qs=new URLSearchParams({...params,_t:Date.now()}).toString();
-  const r=await fetch(SCRIPT_URL+"?"+qs);
+  const r=await fetch(SCRIPT_URL+"?"+qs, {redirect:"follow"});
   if(!r.ok) throw new Error("HTTP "+r.status);
   return r.json();
 }
 async function apiPost(body){
-  const r=await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(body)});
+  // Apps Script requiere text/plain para evitar preflight CORS
+  // y redirect:follow para manejar el redirect 302 que hace Google
+  const r=await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(body),
+    redirect:"follow"
+  });
   if(!r.ok) throw new Error("HTTP "+r.status);
   return r.json();
 }
