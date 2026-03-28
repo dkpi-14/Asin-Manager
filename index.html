@@ -241,7 +241,7 @@ td { padding: 10px 14px; vertical-align: middle; }
           </div>
           <div class="form-group">
             <label>Marketplace</label>
-            <select id="f-mp">
+            <select id="f-mp" onchange="onMpChange(this)">
               <option>ES</option><option>IT</option><option>FR</option>
               <option>GER</option><option>BEL</option><option>UK</option>
             </select>
@@ -348,42 +348,42 @@ const FLABELS = ["Img","A+","Tít","Desc","Blts"];
 const FNAME = {img:"Imágenes",aplus:"Contenido A+",titulo:"Título",desc:"Descripción",bullets:"Bullet Points"};
 
 const INITIAL_ES = [
-  {id:1,asin:"B0F9FY7PYN",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul"},
-  {id:2,asin:"B088KL1HQ7",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 1000 - Blanco"},
-  {id:3,asin:"B088C1VQHS",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 200 - Blanco"},
-  {id:4,asin:"B088C216C6",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 300 - Blanco"},
-  {id:5,asin:"B088C1DFCJ",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Blanco"},
-  {id:6,asin:"B0GSH296R5",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"NO",bullets:"NO",link:"",producto:"XARA Organizador bajo Fregadero - Pack 2"},
-  {id:7,asin:"B0GSG14YLT",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"OK",bullets:"OK",link:"",producto:"Organizador Bajo Fregadero para Cocina o Baño"},
-  {id:8,asin:"B0G4S8XQRH",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x90 (Pack 2) Sin Alas"},
-  {id:9,asin:"B0G4SDM2RL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x90 (Pack 4) Sin Alas"},
-  {id:10,asin:"B0G4SCRG89",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 75x90 Sin Alas"},
-  {id:11,asin:"B0GN9YDP7Z",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul v2"},
-  {id:12,asin:"B0GKHPHWKL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 Sin Alas"},
-  {id:13,asin:"B0G4SF4NR5",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 (Pack 2) Sin Alas"},
-  {id:14,asin:"B0G4SDKNNW",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x90 Sin Alas"},
-  {id:15,asin:"B0G4SBMLKK",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x90 (Pack 4) Sin Alas"},
-  {id:16,asin:"B083V6PH9W",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 90x85 (Pack 2) con Alas"},
-  {id:17,asin:"B092W79MFN",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x85 (Pack 2) con Alas"},
-  {id:18,asin:"B08NF83KGW",mp:"ES",img:"OK",aplus:"OK",titulo:"En proceso",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x85 (Pack 2) con Alas"},
-  {id:19,asin:"B085TQ7FWB",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 90x85 con Alas"},
-  {id:20,asin:"B08NF98SWP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 135x85 con Alas"},
-  {id:21,asin:"B092W67H6S",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 160x85 con Alas"},
-  {id:22,asin:"B09FTJYVZG",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 200x85 con Alas"},
-  {id:23,asin:"B09FTGPT59",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"PimPam Factory Empapadores 50x70 Sin Alas B"},
-  {id:24,asin:"B0FX3B8TB4",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Guantes Polietileno Pack 1.000"},
-  {id:25,asin:"B0C5JX299Q",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Guantes Polietileno Pack 10.000"},
-  {id:26,asin:"B0FKZ6J4SW",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr"},
-  {id:27,asin:"B0F8P75H96",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Pack 400 Gorros + Cubrezapatos + Batas + Guantes"},
-  {id:28,asin:"B0C29CBVCQ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr (B)"},
-  {id:29,asin:"B0C28Y1SYF",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 50 - 25gr"},
-  {id:30,asin:"B0FKZ7555V",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 10 - 35gr"},
-  {id:31,asin:"B0FQ5M67T4",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XXXL Pack 10 - 35gr"},
-  {id:32,asin:"B0C28YX2CD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 50 - 35gr"},
-  {id:33,asin:"B0C28WLD9P",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica L Pack 10 - 35gr (B)"},
-  {id:34,asin:"B0C28YGVSJ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XXXL Pack 50 - 35gr"},
-  {id:35,asin:"B0C28XQDGP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 10 - 35gr"},
-  {id:36,asin:"B0C28XH3BD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"",producto:"XARA Bata Quirurgica XL Pack 50 - 35gr"},
+  {id:1,asin:"B0F9FY7PYN",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0F9FY7PYN",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul"},
+  {id:2,asin:"B088KL1HQ7",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B088KL1HQ7",producto:"PimPam Factory Patucos Desechables - Pack 1000 - Blanco"},
+  {id:3,asin:"B088C1VQHS",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B088C1VQHS",producto:"PimPam Factory Patucos Desechables - Pack 200 - Blanco"},
+  {id:4,asin:"B088C216C6",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B088C216C6",producto:"PimPam Factory Patucos Desechables - Pack 300 - Blanco"},
+  {id:5,asin:"B088C1DFCJ",mp:"ES",img:"OK",aplus:"En proceso",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B088C1DFCJ",producto:"PimPam Factory Patucos Desechables - Pack 100 - Blanco"},
+  {id:6,asin:"B0GSH296R5",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"NO",bullets:"NO",link:"https://www.amazon.es/dp/B0GSH296R5",producto:"XARA Organizador bajo Fregadero - Pack 2"},
+  {id:7,asin:"B0GSG14YLT",mp:"ES",img:"NO",aplus:"NO",titulo:"En proceso",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0GSG14YLT",producto:"Organizador Bajo Fregadero para Cocina o Baño"},
+  {id:8,asin:"B0G4S8XQRH",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4S8XQRH",producto:"PimPam Factory Empapadores 160x90 (Pack 2) Sin Alas"},
+  {id:9,asin:"B0G4SDM2RL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4SDM2RL",producto:"PimPam Factory Empapadores 160x90 (Pack 4) Sin Alas"},
+  {id:10,asin:"B0G4SCRG89",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4SCRG89",producto:"PimPam Factory Empapadores 75x90 Sin Alas"},
+  {id:11,asin:"B0GN9YDP7Z",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0GN9YDP7Z",producto:"PimPam Factory Patucos Desechables - Pack 100 - Azul v2"},
+  {id:12,asin:"B0GKHPHWKL",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0GKHPHWKL",producto:"PimPam Factory Empapadores 50x70 Sin Alas"},
+  {id:13,asin:"B0G4SF4NR5",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4SF4NR5",producto:"PimPam Factory Empapadores 50x70 (Pack 2) Sin Alas"},
+  {id:14,asin:"B0G4SDKNNW",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4SDKNNW",producto:"PimPam Factory Empapadores 135x90 Sin Alas"},
+  {id:15,asin:"B0G4SBMLKK",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0G4SBMLKK",producto:"PimPam Factory Empapadores 135x90 (Pack 4) Sin Alas"},
+  {id:16,asin:"B083V6PH9W",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B083V6PH9W",producto:"PimPam Factory Empapadores 90x85 (Pack 2) con Alas"},
+  {id:17,asin:"B092W79MFN",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B092W79MFN",producto:"PimPam Factory Empapadores 160x85 (Pack 2) con Alas"},
+  {id:18,asin:"B08NF83KGW",mp:"ES",img:"OK",aplus:"OK",titulo:"En proceso",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B08NF83KGW",producto:"PimPam Factory Empapadores 135x85 (Pack 2) con Alas"},
+  {id:19,asin:"B085TQ7FWB",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B085TQ7FWB",producto:"PimPam Factory Empapadores 90x85 con Alas"},
+  {id:20,asin:"B08NF98SWP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B08NF98SWP",producto:"PimPam Factory Empapadores 135x85 con Alas"},
+  {id:21,asin:"B092W67H6S",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B092W67H6S",producto:"PimPam Factory Empapadores 160x85 con Alas"},
+  {id:22,asin:"B09FTJYVZG",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B09FTJYVZG",producto:"PimPam Factory Empapadores 200x85 con Alas"},
+  {id:23,asin:"B09FTGPT59",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B09FTGPT59",producto:"PimPam Factory Empapadores 50x70 Sin Alas B"},
+  {id:24,asin:"B0FX3B8TB4",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0FX3B8TB4",producto:"XARA Guantes Polietileno Pack 1.000"},
+  {id:25,asin:"B0C5JX299Q",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C5JX299Q",producto:"XARA Guantes Polietileno Pack 10.000"},
+  {id:26,asin:"B0FKZ6J4SW",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0FKZ6J4SW",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr"},
+  {id:27,asin:"B0F8P75H96",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0F8P75H96",producto:"XARA Pack 400 Gorros + Cubrezapatos + Batas + Guantes"},
+  {id:28,asin:"B0C29CBVCQ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C29CBVCQ",producto:"XARA Bata Quirurgica XL Pack 10 - 25gr (B)"},
+  {id:29,asin:"B0C28Y1SYF",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28Y1SYF",producto:"XARA Bata Quirurgica XL Pack 50 - 25gr"},
+  {id:30,asin:"B0FKZ7555V",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0FKZ7555V",producto:"XARA Bata Quirurgica L Pack 10 - 35gr"},
+  {id:31,asin:"B0FQ5M67T4",mp:"ES",img:"OK",aplus:"NO",titulo:"OK",desc:"OK",bullets:"OK",link:"https://www.amazon.es/dp/B0FQ5M67T4",producto:"XARA Bata Quirurgica XXXL Pack 10 - 35gr"},
+  {id:32,asin:"B0C28YX2CD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28YX2CD",producto:"XARA Bata Quirurgica L Pack 50 - 35gr"},
+  {id:33,asin:"B0C28WLD9P",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28WLD9P",producto:"XARA Bata Quirurgica L Pack 10 - 35gr (B)"},
+  {id:34,asin:"B0C28YGVSJ",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28YGVSJ",producto:"XARA Bata Quirurgica XXXL Pack 50 - 35gr"},
+  {id:35,asin:"B0C28XQDGP",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28XQDGP",producto:"XARA Bata Quirurgica XL Pack 10 - 35gr"},
+  {id:36,asin:"B0C28XH3BD",mp:"ES",img:"OK",aplus:"OK",titulo:"OK",desc:"NO",bullets:"OK",link:"https://www.amazon.es/dp/B0C28XH3BD",producto:"XARA Bata Quirurgica XL Pack 50 - 35gr"},
 ];
 
 // All data keyed by marketplace
@@ -415,6 +415,13 @@ async function loadFromCloud() {
       if (rec.data && rec.data.length > 0 && ALL_DATA.ES.length === 0) {
         ALL_DATA.ES = rec.data.map(d => ({...d, link: d.link||""}));
       }
+      // Auto-fill missing links from ASIN for ES marketplace
+      const mpDomains = {ES:"amazon.es",IT:"amazon.it",FR:"amazon.fr",GER:"amazon.de",BEL:"amazon.com.be",UK:"amazon.co.uk"};
+      Object.entries(ALL_DATA).forEach(([mp, list]) => {
+        list.forEach(d => {
+          if (!d.link && d.asin) d.link = `https://www.${mpDomains[mp]||"amazon.es"}/dp/${d.asin}`;
+        });
+      });
     } else {
       ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
       await saveToCloud();
@@ -598,6 +605,7 @@ function clearForm() {
   document.getElementById("f-asin").value = "";
   document.getElementById("f-prod").value = "";
   document.getElementById("f-link").value = "";
+  document.getElementById("f-link").dataset.autofilled = "false";
   document.getElementById("f-mp").value = currentMP;
   document.getElementById("f-img").value = "OK";
   document.getElementById("f-aplus").value = "NO";
@@ -606,11 +614,31 @@ function clearForm() {
   document.getElementById("f-bullets").value = "OK";
 }
 
+const MP_DOMAINS = {ES:"amazon.es",IT:"amazon.it",FR:"amazon.fr",GER:"amazon.de",BEL:"amazon.com.be",UK:"amazon.co.uk"};
+
+function onMpChange(el) {
+  const asin = document.getElementById("f-asin").value.trim();
+  const linkEl = document.getElementById("f-link");
+  if (asin.length === 10 && /^[A-Z0-9]{10}$/.test(asin) && linkEl.dataset.autofilled === "true") {
+    linkEl.value = `https://www.${MP_DOMAINS[el.value]||"amazon.es"}/dp/${asin}`;
+  }
+}
+
 function onAsinInput(el) {
   el.value = el.value.toUpperCase();
   const asin = el.value.trim();
-  const errEl = document.getElementById("asin-error");
   const mp = document.getElementById("f-mp").value;
+  const linkEl = document.getElementById("f-link");
+  const errEl = document.getElementById("asin-error");
+  // Auto-fill link field
+  if (asin.length === 10 && /^[A-Z0-9]{10}$/.test(asin)) {
+    if (!linkEl.value || linkEl.dataset.autofilled === "true") {
+      linkEl.value = `https://www.${MP_DOMAINS[mp]||"amazon.es"}/dp/${asin}`;
+      linkEl.dataset.autofilled = "true";
+    }
+  } else {
+    if (linkEl.dataset.autofilled === "true") { linkEl.value = ""; linkEl.dataset.autofilled = "false"; }
+  }
   // Clear error while typing if not 10 chars yet
   if (asin.length < 10) { errEl.textContent = ""; errEl.classList.remove("show"); el.classList.remove("input-error"); return; }
   // Check format
