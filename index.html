@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASIN Manager</title>
+<title>Control de Cambios de ASIN</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -401,12 +401,40 @@ function setSyncStatus(state, label) {
   document.getElementById("sync-label").textContent = label;
 }
 
+// ── LOCAL STORAGE HELPERS ──────────────────────────────────────────────────
+const LS_KEY = "asin_manager_v1";
+
+function saveLocal() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ all_data: ALL_DATA, nextIds }));
+  } catch(e) { /* quota exceeded — ignore */ }
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+// ───────────────────────────────────────────────────────────────────────────
+
 async function loadFromCloud(isAutoSync = false) {
   if (isAutoSync && saving) return; // don't overwrite during an active save
   setSyncStatus("loading", "cargando...");
+
+  const mpDomains = {ES:"amazon.es",IT:"amazon.it",FR:"amazon.fr",GER:"amazon.de",BEL:"amazon.com.be",UK:"amazon.co.uk"};
+  function applyLinks(data) {
+    Object.entries(data).forEach(([mp, list]) => {
+      list.forEach(d => {
+        if (!d.link && d.asin) d.link = `https://www.${mpDomains[mp]||"amazon.es"}/dp/${d.asin}`;
+      });
+    });
+  }
+
   try {
     const r = await fetch(API_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
-    if (!r.ok) throw new Error();
+    if (!r.ok) throw new Error("HTTP " + r.status);
     const json = await r.json();
     const rec = json.record;
     if (rec && rec.all_data) {
@@ -416,23 +444,37 @@ async function loadFromCloud(isAutoSync = false) {
       if (rec.data && rec.data.length > 0 && ALL_DATA.ES.length === 0) {
         ALL_DATA.ES = rec.data.map(d => ({...d, link: d.link||""}));
       }
-      // Auto-fill missing links from ASIN for ES marketplace
-      const mpDomains = {ES:"amazon.es",IT:"amazon.it",FR:"amazon.fr",GER:"amazon.de",BEL:"amazon.com.be",UK:"amazon.co.uk"};
-      Object.entries(ALL_DATA).forEach(([mp, list]) => {
-        list.forEach(d => {
-          if (!d.link && d.asin) d.link = `https://www.${mpDomains[mp]||"amazon.es"}/dp/${d.asin}`;
-        });
-      });
+      applyLinks(ALL_DATA);
+      saveLocal(); // keep local copy in sync with cloud
     } else {
-      ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
-      await saveToCloud();
+      // Bin is empty — try localStorage before falling back to hardcoded data
+      const local = loadLocal();
+      if (local) {
+        ALL_DATA = local.all_data;
+        nextIds = local.nextIds || nextIds;
+        applyLinks(ALL_DATA);
+        toast("Datos recuperados del almacenamiento local.");
+      } else {
+        ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
+        saveLocal();
+      }
+      await saveToCloud(); // push whatever we have to cloud
     }
     setSyncStatus("ok", "sincronizado");
     updateLastSync();
   } catch(e) {
     setSyncStatus("err", "sin conexión");
-    ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
-    toast("Sin conexión. Usando datos locales.");
+    // API failed — try localStorage before falling back to hardcoded data
+    const local = loadLocal();
+    if (local) {
+      ALL_DATA = local.all_data;
+      nextIds = local.nextIds || nextIds;
+      applyLinks(ALL_DATA);
+      toast("Sin conexión. Usando datos guardados localmente.");
+    } else {
+      ALL_DATA.ES = INITIAL_ES.map(d => ({...d}));
+      toast("Sin conexión. Cargando datos de ejemplo.");
+    }
   }
   refresh();
 }
@@ -440,6 +482,11 @@ async function loadFromCloud(isAutoSync = false) {
 async function saveToCloud() {
   if (saving) return;
   saving = true;
+
+  // Always persist locally first — guarantees data survives a refresh
+  // even if the cloud API is down or the key has expired.
+  saveLocal();
+
   setSyncStatus("loading", "guardando...");
   try {
     const r = await fetch(API_URL, {
@@ -451,13 +498,21 @@ async function saveToCloud() {
     setSyncStatus("ok", "guardado ✓");
     updateLastSync();
   } catch(e) {
-    setSyncStatus("err", "error al guardar");
-    toast("Error al guardar en la nube. Reintentando...");
-    // Retry once after 2 seconds
+    // Cloud failed, but localStorage already has the data — don't lose it.
+    setSyncStatus("err", "guardado local · sin nube");
+    toast("Sin conexión a la nube. Guardado localmente ✓");
+    // Retry cloud sync once after 3 seconds
     setTimeout(async () => {
-      saving = false;
-      await saveToCloud();
-    }, 2000);
+      try {
+        const r2 = await fetch(API_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+          body: JSON.stringify({ all_data: ALL_DATA, nextIds })
+        });
+        if (r2.ok) { setSyncStatus("ok", "sincronizado ✓"); updateLastSync(); }
+      } catch(_) { /* retry failed silently — localStorage still has the data */ }
+    }, 3000);
+    saving = false;
     return;
   }
   saving = false;
