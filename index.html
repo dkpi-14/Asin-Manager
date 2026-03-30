@@ -470,9 +470,9 @@ async function saveProduct(){
     errEl.textContent="Formato inválido — solo letras y números, exactamente 10 caracteres.";
     errEl.classList.add("show");document.getElementById("f-asin").classList.add("input-error");return;
   }
-  const dupIn=Object.entries(ALL_DATA).filter(([m,list])=>list.some(d=>d.asin===asin)).map(([m])=>m);
-  if(dupIn.length>0){
-    errEl.textContent="ASIN duplicado — ya existe en: "+dupIn.join(", ");
+  const dupInMP=(ALL_DATA[mp]||[]).some(d=>d.asin===asin);
+  if(dupInMP){
+    errEl.textContent="ASIN duplicado — ya existe en "+mp+".";
     errEl.classList.add("show");document.getElementById("f-asin").classList.add("input-error");return;
   }
   const btn=document.getElementById("save-btn");
@@ -629,9 +629,10 @@ function onAsinInput(el){
     errEl.textContent="Formato inv\u00e1lido \u2014 solo letras y n\u00fameros, exactamente 10 caracteres.";
     errEl.classList.add("show");el.classList.add("input-error");return;
   }
-  const dupIn=Object.entries(ALL_DATA).filter(([m,list])=>list.some(d=>d.asin===asin)).map(([m])=>m);
-  if(dupIn.length>0){
-    errEl.textContent="ASIN duplicado \u2014 ya existe en: "+dupIn.join(", ");
+  const curMp=document.getElementById("f-mp").value;
+  const dupInMP=(ALL_DATA[curMp]||[]).some(d=>d.asin===asin);
+  if(dupInMP){
+    errEl.textContent="ASIN duplicado \u2014 ya existe en "+curMp+".";
     errEl.classList.add("show");el.classList.add("input-error");return;
   }
   errEl.textContent="";errEl.classList.remove("show");el.classList.remove("input-error");
